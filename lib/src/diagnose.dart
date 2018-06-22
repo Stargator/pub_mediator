@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
+import 'package:dart2_constant/convert.dart' as polyfill;
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -31,7 +31,7 @@ Future<DependencyDiagnosis> diagnoseConflicts(PubSpec projectPubspec,
   List<String> processed = [];
   Map<String, List<DependencyRequirement>> requirements = {};
   Map<String, VersionConstraint> sdkConstraints = {};
-  var futures = [];
+  var futures = <Future>[];
   var tempDir = new Directory.fromUri(
       Directory.current.uri.resolve('.pub_mediator_temp'));
 
@@ -146,7 +146,7 @@ Future<PubSpec> resolvePubspec(String packageName, DependencyReference dep,
     var client = new http.Client();
     if (verbose) print('Downloading $pubHosted/packages/$packageName...');
     var pkgResponse = await client.get('$pubHosted/packages/$packageName');
-    List<Map> versions = JSON.decode(pkgResponse.body)['versions'];
+    List<Map> versions = polyfill.json.decode(pkgResponse.body)['versions'];
     Map<Version, String> versionMap = {};
     List<Version> potentialVersions = [];
 
@@ -171,7 +171,7 @@ Future<PubSpec> resolvePubspec(String packageName, DependencyReference dep,
       client.close();
 
       try {
-        var p = JSON.decode(response.body)['pubspec'];
+        var p = polyfill.json.decode(response.body)['pubspec'];
         if (p is! Map) throw 'Response is not a JSON object.';
         return new PubSpec.fromJson(p..remove('dev_dependencies'));
       } catch (e) {
@@ -276,7 +276,7 @@ Future identifyRequirements(
 
   // Next, check for any packages that haven't been crawled yet.
 
-  var futures = [];
+  var futures = <Future>[];
   pubspec.dependencies.forEach((name, dep) {
     if (!processed.contains(name)) {
       futures.add(
