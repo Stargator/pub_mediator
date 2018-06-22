@@ -34,11 +34,20 @@ Future<DependencyDiagnosis> diagnoseConflicts(PubSpec projectPubspec,
   var futures = [];
   var tempDir = new Directory.fromUri(
       Directory.current.uri.resolve('.pub_mediator_temp'));
+  Map<String, DependencyReference> overriddenDependencies = projectPubspec.dependencyOverrides;;
 
   projectPubspec.allDependencies.forEach((name, dep) {
-    // Add a dependency requirement
-    _addDep(name, new DependencyRequirement(projectPubspec.name, dep),
-        requirements);
+
+    if (overriddenDependencies.keys.contains(name)) {
+      // Add overridden dependency requirement
+      _addDep(name, new DependencyRequirement(projectPubspec.name, overriddenDependencies[name]),
+          requirements);
+
+    } else {
+      // Add a dependency requirement
+      _addDep(name, new DependencyRequirement(projectPubspec.name, dep),
+          requirements);
+    }
 
     futures
         .add(resolvePubspec(name, dep, tempDir, verbose).then((pubspec) async {
