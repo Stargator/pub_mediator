@@ -1,0 +1,15 @@
+name: args_client
+description: A sample command-line application.
+version: 0.0.1
+#homepage: https://www.example.com
+#author: johnmcmahon <email@example.com>
+
+environment:
+  sdk: '>=1.20.1 <2.0.0'
+
+dependencies:
+  args_user:
+    path: '../args_user'
+
+dependency_overrides:
+  args: <1.0.0
